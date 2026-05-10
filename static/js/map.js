@@ -93,13 +93,45 @@ function initMap() {
 
         // generates and styles the SVG path
         map = svg.append("g")
-            .selectAll('path')
-            .data(mapData)
-            .enter().append('path')
-            .attr('d', path)
-            .attr('stroke', 'black')
-            .attr('stroke-width', 0.5)
-            .attr('fill', 'white');
+    .selectAll('path')
+    .data(mapData)
+    .enter()
+    .append('path')
+    .attr('class', d => "country country-" + cleanName(d.properties.admin))
+    .attr('d', path)
+    .attr('stroke', 'black')
+    .attr('stroke-width', 0.5)
+    .attr('fill', 'white')
+    .on("mouseover", function(event, d) {
+        let countryName = d.properties.admin;
+
+        d3.select(this)
+            .attr("stroke-width", 2)
+            .attr("stroke", "blue");
+
+        d3.select(".dot-" + cleanName(countryName))
+            .attr("r", 9)
+            .attr("fill", "orange");
+    })
+    .on("mouseout", function(event, d) {
+        let countryName = d.properties.admin;
+
+        d3.select(this)
+            .attr("stroke-width", 0.5)
+            .attr("stroke", "black");
+
+        d3.select(".dot-" + cleanName(countryName))
+            .attr("r", 5)
+            .attr("fill", "steelblue");
+    })
+        .on("click", function(event, d) {
+
+    let countryName = d.properties.admin;
+
+    console.log("Clicked country:", countryName);
+
+    updateLinePlot(countryName);
+});
         updateMapColors();
     });
 
