@@ -32,7 +32,7 @@ def data():
 
     # load csv
     df = pd.read_csv("static/data/clean_data.csv", on_bad_lines="skip")
-    print("COLUMNS:", df.columns.tolist(), flush=True)
+#    print("COLUMNS:", df.columns.tolist(), flush=True)
 
     # filter countries
     df = df[df["Country Name"].isin(COUNTRIES)]

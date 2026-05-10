@@ -28,9 +28,13 @@ function initDropdown() {
     dropdown.on("change", function(event) {
     selectedIndicator = event.target.value;
 
-    console.log("Selected indicator:", selectedIndicator);
-
     updateMapColors();
+
+    if (brushedCountries.length > 0) {
+        updateLinePlotMultiple(brushedCountries);
+    } else if (selectedCountry !== null) {
+        updateLinePlot(selectedCountry);
+    }
 });
 }
 
@@ -105,6 +109,22 @@ function initMap() {
     .on("mouseover", function(event, d) {
         let countryName = d.properties.admin;
 
+        let countryData = data.find(function(row) {
+    return row["Country Name"] === countryName && +row.year === +selectedYear;
+});
+
+if (countryData) {
+    let tooltipText = "<b>" + countryName + "</b><br>" +
+        "Year: " + selectedYear + "<br>" +
+        selectedIndicator + ": " + countryData[selectedIndicator];
+
+    d3.select("#tooltip")
+        .style("display", "block")
+        .html(tooltipText)
+        .style("left", (event.pageX + 10) + "px")
+        .style("top", (event.pageY + 10) + "px");
+}
+
         d3.select(this)
             .attr("stroke-width", 2)
             .attr("stroke", "blue");
@@ -115,6 +135,9 @@ function initMap() {
     })
     .on("mouseout", function(event, d) {
         let countryName = d.properties.admin;
+
+        d3.select("#tooltip")
+            .style("display", "none");
 
         d3.select(this)
             .attr("stroke-width", 0.5)
@@ -128,9 +151,9 @@ function initMap() {
 
     let countryName = d.properties.admin;
 
-    console.log("Clicked country:", countryName);
+    selectedCountry = countryName;
 
-    updateLinePlot(countryName);
+    updateLinePlot(selectedCountry);
 });
         updateMapColors();
     });

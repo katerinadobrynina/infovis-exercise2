@@ -57,13 +57,86 @@ function initScatterplot() {
         .attr("stroke", "black");
 });
 
-    svg.selectAll(".pca-label")
-        .data(pcaData)
-        .enter()
-        .append("text")
-        .attr("class", "pca-label")
-        .attr("x", d => xScale(d.x) + 7)
-        .attr("y", d => yScale(d.y) + 4)
-        .text(d => d.country)
-        .attr("font-size", "10px");
+
+    const brush = d3.brush()
+    .extent([
+        [margin.left, margin.top],
+        [width - margin.right, height - margin.bottom]
+    ])
+    .on("brush end", brushed);
+
+svg.append("g")
+    .attr("class", "brush")
+    .call(brush);
+}
+
+function brushed(event) {
+
+    if (!event.selection) {
+
+        brushedCountries = [];
+
+        d3.selectAll(".pca-dot")
+            .attr("fill", "steelblue")
+            .attr("r", 5);
+
+        d3.selectAll(".country")
+            .attr("stroke", "black")
+            .attr("stroke-width", 0.5);
+
+        d3.select("#svg_line_plot").selectAll("*").remove();
+
+        return;
+    }
+
+    const [[x0, y0], [x1, y1]] = event.selection;
+
+    brushedCountries = [];
+
+    d3.selectAll(".pca-dot")
+        .each(function(d) {
+
+            const cx = +d3.select(this).attr("cx");
+            const cy = +d3.select(this).attr("cy");
+
+            const selected =
+                x0 <= cx && cx <= x1 &&
+                y0 <= cy && cy <= y1;
+
+            if (selected) {
+                brushedCountries.push(d.country);
+
+                d3.select(this)
+                    .attr("fill", "green")
+                    .attr("r", 8);
+
+            } else {
+
+                d3.select(this)
+                    .attr("fill", "steelblue")
+                    .attr("r", 5);
+            }
+        });
+
+    d3.selectAll(".country")
+        .attr("stroke", function(d) {
+
+            const countryName = d.properties.admin;
+
+            return brushedCountries.includes(countryName)
+                ? "green"
+                : "black";
+        })
+        .attr("stroke-width", function(d) {
+
+            const countryName = d.properties.admin;
+
+            return brushedCountries.includes(countryName)
+                ? 2
+                : 0.5;
+        });
+
+    if (brushedCountries.length > 0) {
+    updateLinePlotMultiple(brushedCountries);
+}
 }

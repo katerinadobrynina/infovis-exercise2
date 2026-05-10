@@ -16,7 +16,11 @@
 <body>
 
 <h1>InfoVis VU 2026 - Exercise 2</h1>
-<p>Enter your name and Matrikelnummer</p>
+<p>
+    ARORA AARADHAYA (12534787),
+    EKATERINA DOBRYNINA (12332276),
+    ZUBKOVA SOFIA (12534780)
+</p>
 
 
 <div id="main_container" class="main_container">
@@ -36,16 +40,52 @@
     <svg id="svg_line_plot"></svg>
 </div>
 
+<div class="slider_container">
+    <label for="year_slider">Year:</label>
+
+    <input
+        type="range"
+        id="year_slider"
+        min="1960"
+        max="2020"
+        value="2020"
+        step="1"
+    >
+
+    <span id="year_value">2020</span>
+</div>
+
+<div id="tooltip" style="
+    position: absolute;
+    display: none;
+    background: white;
+    border: 1px solid #999;
+    padding: 8px;
+    font-size: 12px;
+    pointer-events: none;
+"></div>
 
 <script>
     let data = {{ data | safe }};
     let pcaData = {{ pca_data | safe }};
 
-    console.log(data);
-    console.log(pcaData);
-
     let selectedIndicator = "Rural population growth (annual %)";
     let selectedYear = 2020;
+    let selectedCountry = null;
+    let brushedCountries = [];
+
+    d3.select("#year_slider").on("input", function() {
+
+    selectedYear = +this.value;
+
+    d3.select("#year_value").text(selectedYear);
+
+    updateMapColors();
+
+    if (selectedCountry !== null) {
+        updateLinePlot(selectedCountry);
+    }
+});
 
     initDropdown();
     initMap();
